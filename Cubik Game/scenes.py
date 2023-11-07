@@ -1,8 +1,7 @@
 from constants import *
 from abc import ABC, abstractmethod
-import globals as gl
 from pygame import *
-
+from map import *
 
 
 class Sprite(sprite.Sprite):
@@ -41,7 +40,7 @@ class Player(Sprite):
         if keys[K_SPACE] and self.jumped == False:
             self.vel_y = -12
             self.jumped=True
-
+        self.rect.y += self.vel_y
 
 class Scene(ABC):
     @abstractmethod
@@ -53,8 +52,11 @@ class GameScene(Scene):
         #Логіка створень класів персонажів
         #print(gl.HP)
         self.main_character = Player("assets/images/test.jpg", 100, 100, 500, 500, 10)
+        self.map = map1
+        self.world = World(map1)
 
     def update(self):
-        gl.WINDOWS.fill(BLUE_COLOR)
+        WINDOW.fill(BLUE_COLOR)
         self.main_character.reset()
         self.main_character.update()
+        self.world.draw()
