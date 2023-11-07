@@ -1,8 +1,7 @@
 import pygame
 from constants import *
 from scenes import *
-import globals as gl
-from logger import *
+#from logger import *
 
 pygame.init()  
 
@@ -23,5 +22,5 @@ while APP:
     if play:
         pygame.display.update()
         game.update()
-
-    clock.tick(10)
+        draw_grid()
+    clock.tick(FPS)
