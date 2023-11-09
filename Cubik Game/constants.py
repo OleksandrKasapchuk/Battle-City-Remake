@@ -9,7 +9,7 @@ WINDOW = display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 SCENE_GAME = 0
 SCENE_MAIN = 1
 
-FPS = 60
+FPS = 30
 
 BLUE_COLOR = (0, 0, 255)
 WHITE_COLOR = (255, 255, 255)
