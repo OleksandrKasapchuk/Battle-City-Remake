@@ -1,4 +1,4 @@
-    from pygame import *
+from pygame import *
 from constants import *
 
 tile_size = 64
@@ -86,3 +86,5 @@ def draw_grid():
         draw.line(WINDOW, (255, 255, 255), (0, line * tile_size), (WIN_WIDTH, line * tile_size))
     for line in range(0, 13):
         draw.line(WINDOW, (255, 255, 255), (line * tile_size, 0), (line * tile_size, WIN_HEIGHT))
+
+world = World(map1)
