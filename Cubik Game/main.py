@@ -1,7 +1,11 @@
+from logger import *
 import pygame
 from constants import *
 from scenes import *
-#from logger import *
+from sprites import *
+
+
+logging.info(f'Програма була запущена')
 
 pygame.init()  
 
@@ -14,13 +18,13 @@ play = True
 game = GameScene()
 
 while APP:
-    event = pygame.event.get()
-    for e in event:
-        if e.type == pygame.QUIT:
-            APP = False
-    
-    if play:
-        pygame.display.update()
-        game.update()
-        draw_grid()
-    clock.tick(FPS)
+        event = pygame.event.get()
+        for e in event:
+            if e.type == pygame.QUIT:
+                APP = False
+                
+        if play:
+            pygame.display.update()
+            game.update()
+            #draw_grid()
+        clock.tick(FPS)
