@@ -1,8 +1,8 @@
 import os
 from pygame import *
 
-WIN_WIDTH = 1200
-WIN_HEIGHT = 800
+WIN_WIDTH = 832
+WIN_HEIGHT = 832
 
 WINDOW = display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
@@ -11,7 +11,11 @@ SCENE_MAIN = 1
 
 FPS = 30
 
-BLUE_COLOR = (0, 0, 255)
+fired = False
+
+log_file = "log.txt"
+
+BLACK_COLOR = (0, 0, 0)
 WHITE_COLOR = (255, 255, 255)
 YELLOW_COLOR = (255, 255, 0)
 
