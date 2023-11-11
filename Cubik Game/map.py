@@ -1,5 +1,6 @@
 from pygame import *
 from constants import *
+from logger import *
 
 tile_size = 64
 
@@ -62,7 +63,7 @@ class World():
 
                 col_count += 1
             row_count += 1
-        
+            
     def draw(self):
         for tile in self.tile_list:
             WINDOW.blit(tile[0], tile[1])
