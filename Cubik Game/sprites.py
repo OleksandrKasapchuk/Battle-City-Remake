@@ -21,8 +21,8 @@ class Player(sprite.Sprite):
     def __init__(self, size_x, size_y, player_x, player_y, player_speed): 
         super().__init__() 
         
-        self.up1 = transform.scale(image.load("tanks/player1.png"), (size_x, size_y)) 
-        self.up2 = transform.scale(image.load("tanks/player2.png"), (size_x, size_y))
+        self.up1 = transform.scale(image.load("tanks_textures/player1.png"), (size_x, size_y)) 
+        self.up2 = transform.scale(image.load("tanks_textures/player2.png"), (size_x, size_y))
         self.image = self.up1
         self.ups = [self.up1, self.up2]
         self.downs = [transform.flip(self.up1, False, True), transform.flip(self.up2, False, True)]
