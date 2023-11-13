@@ -4,6 +4,10 @@ from logger import *
 
 tile_size = 64
 
+bushes = []
+bricks = []
+
+
 class World():
     def __init__(self, data):
         self.tile_list = []
@@ -12,7 +16,7 @@ class World():
         brick_img = image.load("assets/images/brick.jpg")
         beton_img = image.load("assets/images/beton.jpg")
         ice_img = image.load("assets/images/ice.jpg")
-        bush_img = image.load("assets/images/bush.jpg")
+        bush_img = image.load("assets/images/bush.png")
         water_img = image.load("assets/images/water.jpg")
         
         row_count = 0
@@ -43,6 +47,7 @@ class World():
                     img_rect.y = row_count * tile_size
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
+                    bushes.append(tile)
 
                 elif tile == 4:
                     img = transform.scale(ice_img, (tile_size, tile_size))
