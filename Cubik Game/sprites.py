@@ -71,7 +71,7 @@ class Player(sprite.Sprite):
             dy = self.speed
             self.counter += 1
             self.direction = -2
-        elif keys[K_SPACE]:# and current_time - self.last_shot_time > self.shoot_cooldown:
+        elif keys[K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
             self.fire()
             self.last_shot_time = current_time
 
@@ -114,9 +114,13 @@ class Enemy(GameSprite):
     def update(self):
         pass
 
+
 class Bullet(GameSprite):
     def __init__(self, player_image, player_speed, player_x, player_y, size_x, size_y, direction):
         super().__init__(player_image, player_speed, player_x, player_y, size_x, size_y, direction)
+
+        self.size_x = size_x
+        self.size_y = size_y
 
         if direction in [1, -1]:
             self.rotation = 270 if direction == 1 else 90
@@ -126,13 +130,49 @@ class Bullet(GameSprite):
 
         self.image = transform.rotate(self.image, self.rotation)
 
-    def update(self):
-        if self.direction == 1:
-            self.rect.x += self.speed
-        elif self.direction == -1:
-            self.rect.x -= self.speed
-        elif self.direction == 2:
-            self.rect.y -= self.speed
-        elif self.direction == -2:
-            self.rect.y += self.speed
+        if direction == 1:
+            self.rotation = 180
+            self.image = transform.flip(self.image, True, False)
+            self.side_offset = 3
+            self.up_down_offset = 5
 
+        elif direction == -1:
+            self.rotation = 0
+            self.side_offset = -43
+            self.up_down_offset = 6
+
+        elif direction == 2:
+            self.rotation = 0
+            self.side_offset = -22
+            self.up_down_offset = -25
+
+        elif direction == -2:
+            self.rotation = 0
+            self.side_offset = -21.5
+            self.up_down_offset = 30
+
+        self.image = transform.rotate(self.image, self.rotation)
+        self.rect.x += self.side_offset
+        self.rect.y += self.up_down_offset
+
+    def update(self):
+        dx = 0 
+        dy = 0
+        if self.direction == 1:
+            dx += self.speed
+        elif self.direction == -1:
+            dx -= self.speed
+        elif self.direction == 2:
+            dy -= self.speed
+        elif self.direction == -2:
+            dy += self.speed
+    
+        for tile in world.tile_list:
+            if tile[1].colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y) and tile in touchabels:
+                self.kill()
+                if tile in bricks:
+                    world.tile_list.remove(tile)
+                   
+        
+        self.rect.x += dx
+        self.rect.y += dy
