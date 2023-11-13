@@ -14,10 +14,10 @@ class GameScene(Scene):
     def __init__(self):
         self.main_character = Player(58, 58, 400, 450, 5)
         self.map = map1
-        self.world = World(map1)
+        self.world = world
 
     def update(self):
-        WINDOW.fill(WHITE_COLOR)
+        WINDOW.fill(BLACK_COLOR)
         self.main_character.reset()
         self.main_character.update()
         self.world.draw()
