@@ -6,7 +6,7 @@ tile_size = 64
 
 bushes = []
 bricks = []
-
+touchabels = []
 
 class World():
     def __init__(self, data):
@@ -31,7 +31,9 @@ class World():
                     img_rect.y = row_count * tile_size
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
-                    
+                    bricks.append(tile)
+                    touchabels.append(tile)
+
                 elif tile == 2:
                     img = transform.scale(beton_img, (tile_size, tile_size))
                     img_rect = img.get_rect()
@@ -39,6 +41,7 @@ class World():
                     img_rect.y = row_count * tile_size
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
+                    touchabels.append(tile)
 
                 elif tile == 3:
                     img = transform.scale(bush_img, (tile_size, tile_size))
@@ -86,11 +89,5 @@ map1 = [[0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
         [0, 1, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
         [0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1],
         [0, 0, 0, 0, 0, 1, 6, 1, 0, 0, 0, 1, 1]]
-
-def draw_grid():
-    for line in range(0, 13):
-        draw.line(WINDOW, (255, 255, 255), (0, line * tile_size), (WIN_WIDTH, line * tile_size))
-    for line in range(0, 13):
-        draw.line(WINDOW, (255, 255, 255), (line * tile_size, 0), (line * tile_size, WIN_HEIGHT))
 
 world = World(map1)
