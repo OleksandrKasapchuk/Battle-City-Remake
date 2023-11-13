@@ -26,5 +26,4 @@ while APP:
         if play:
             pygame.display.update()
             game.update()
-            #draw_grid()
         clock.tick(FPS)
