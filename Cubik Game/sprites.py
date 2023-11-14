@@ -20,7 +20,7 @@ class GameSprite(sprite.Sprite):
 
 
 class Player(sprite.Sprite): 
-    def __init__(self, size_x, size_y, player_x, player_y, player_speed): 
+    def __init__(self, size_x, size_y, player_x, player_y, player_speed,max_health): 
         super().__init__() 
         
         self.up1 = transform.scale(image.load("tanks_textures/player1.png"), (size_x, size_y)) 
@@ -41,8 +41,14 @@ class Player(sprite.Sprite):
         self.counter = 0
         self.direction = 0
         self.bullets = sprite.Group()
-        self.last_shot_time = -5000  # Змінна для відстеження часу останнього вистрілу
-        self.shoot_cooldown = 5000  # Затримка між вистрілами у мілісекундах
+        self.last_shot_time = -5000  
+        self.shoot_cooldown = 5000
+        # 
+        self.shooting = False
+        self.max_health = max_health
+        self.health = max_health
+        #
+          
 
     def reset(self): 
         WINDOW.blit(self.image, (self.rect.x, self.rect.y))
@@ -55,6 +61,8 @@ class Player(sprite.Sprite):
         walk_cooldown = 1
         current_time = time.get_ticks()
         keys = key.get_pressed() 
+
+
         if keys[K_d] or keys[K_RIGHT] and self.rect.x < 780: 
             dx = self.speed
             self.counter += 1
@@ -74,7 +82,9 @@ class Player(sprite.Sprite):
         elif keys[K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
             self.fire()
             self.last_shot_time = current_time
-
+            self.shooting = True
+        elif keys[K_f]:
+            self.health -= 1
         for bullet in self.bullets:
             bullet.update()
 
@@ -109,6 +119,8 @@ class Player(sprite.Sprite):
     def fire(self):
         bullet = Bullet("assets/images/bullet.png", 10, self.rect.centerx, self.rect.top, 45, 45, self.direction)
         self.bullets.add(bullet)
+
+
 
 class Enemy(GameSprite):
     def update(self):
