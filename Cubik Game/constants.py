@@ -12,6 +12,7 @@ SCENE_MAIN = 1
 FPS = 30
 
 fired = False
+max_health=3
 
 log_file = "log.txt"
 
