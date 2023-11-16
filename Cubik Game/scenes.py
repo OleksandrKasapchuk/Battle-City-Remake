@@ -17,8 +17,8 @@ class GameScene(Scene):
         self.map = map1
         self.world = world
         self.base = GameSprite("assets/images/baza.png", 0, 385, 770, 64, 64, 0)
-        self.fast_tank = FastTank(0, 150)
-        self.armored_tank = ArmoredTank(450, 50)
+        self.fast_tank = FastTank(0, 120)
+        self.armored_tank = ArmoredTank(450, 100)
         self.tanks_group = sprite.Group(self.fast_tank, self.armored_tank)
         self.heart_image_red = transform.scale(image.load("assets/images/heart_red.png"), (20, 20))
         self.heart_image_white = transform.scale(image.load("assets/images/heart_white.png"), (20, 20))
