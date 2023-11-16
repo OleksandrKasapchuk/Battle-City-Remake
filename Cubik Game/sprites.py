@@ -136,8 +136,7 @@ class Tank(GameSprite):
 
     def update(self):
         dx, dy = 0, 0
-#bushes
-        # Check for collision with walls
+        
         for tile in world.tile_list:
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.rect.width, self.rect.height) and tile not in bushes:
                 self.wall_collision = True
@@ -150,23 +149,22 @@ class Tank(GameSprite):
 
 
 
-        # If there is a wall collision, reverse direction or rotate by 180 degrees
+
         if self.wall_collision:
             random_number = random()
             if random_number < 0.4:  # 40% probability
                 player_directions = [player.direction, -player.direction]
                 possible_directions = list(set([1, -1, 2, -2, *player_directions]))
-                possible_directions.remove(-self.direction)  # Remove the opposite direction
+                possible_directions.remove(-self.direction) 
                 self.direction = choice(possible_directions)
             else:
                 rotate_probability = random()
-                if rotate_probability < 0.5:  # 50% probability
-                    rotate_amount = choice([90, 180])  # Rotate by either 90 or 180 degrees
+                if rotate_probability < 0.5: 
+                    rotate_amount = choice([90, 180]) 
                     self.direction = self.rotate_direction(self.direction, rotate_amount)
 
             self.wall_collision = False
 
-            # Snap to the grid by adjusting the position to be a multiple of the tile size
             self.rect.x = round(self.rect.x / tile_size) * tile_size
             self.rect.y = round(self.rect.y / tile_size) * tile_size
 
