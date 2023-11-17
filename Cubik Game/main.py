@@ -1,3 +1,4 @@
+#імпортуємо модулі
 from logger import *
 import pygame
 from constants import *
@@ -15,14 +16,13 @@ APP = True
 SCENE_GAME = True
 play = True
 
-game = GameScene()
-
+#ігровий цикл
 while APP:
         event = pygame.event.get()
         for e in event:
             if e.type == pygame.QUIT:
                 APP = False
-                
+        #гра 
         if play:
             pygame.display.update()
             game.update()
