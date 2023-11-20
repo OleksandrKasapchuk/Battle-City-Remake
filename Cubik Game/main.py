@@ -14,7 +14,9 @@ clock = pygame.time.Clock()
 
 APP = True
 SCENE_GAME = True
-play = True
+started = False
+play = False
+finish = False
 
 #ігровий цикл
 while APP:
@@ -22,8 +24,19 @@ while APP:
         for e in event:
             if e.type == pygame.QUIT:
                 APP = False
-        #гра 
-        if play:
-            pygame.display.update()
-            game.update()
+        if not finish:
+            if not started:
+                WINDOW.blit(start_background, (0,0))
+                btn_play.draw()
+                btn_exit.draw()
+                WINDOW.blit(logo1,(100,-150))
+                if btn_play.clicked:
+                    start = True
+                    play = True
+                if btn_exit.clicked:
+                    APP = False
+            #гра 
+            if play:
+                game.update()
+        pygame.display.update()
         clock.tick(FPS)
