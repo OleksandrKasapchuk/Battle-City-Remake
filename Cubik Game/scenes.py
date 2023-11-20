@@ -6,6 +6,11 @@ from map import *
 from sprites import *
 from logger import *
 
+font.init()
+font1 = font.SysFont("Arial", 80)
+win = font1.render('YOU WIN!', True, (0,255,0))
+lose = font1.render('YOU LOST!', True, (255,0,0))
+
 #асбтрактний клас сцени
 class Scene(ABC):
     @abstractmethod
@@ -18,24 +23,22 @@ class GameScene(Scene):
         self.main_character = player
         self.map = map1
         self.world = world
-        self.base = GameSprite("assets/images/baza.png", 0, 385, 770, 64, 64, 0)
-        self.fast_tank = FastTank(0, 120)
-        self.armored_tank = ArmoredTank(450, 100)
-        self.tanks_group = sprite.Group(self.fast_tank, self.armored_tank)
+        self.base = baza
+        self.tanks_group = tanks_group
         self.heart_image_red = transform.scale(image.load("assets/images/heart_red.png"), (20, 20))
         self.heart_image_white = transform.scale(image.load("assets/images/heart_white.png"), (20, 20))
     #оновлення сцени гри
     def update(self):
-        WINDOW.fill(BLACK_COLOR)
+        WINDOW.blit(play_background,(0,0))
         #промальовка персонажів
+        for tank in self.tanks_group:
+            tank.reset()
+            tank.update()
         self.main_character.reset()
         self.main_character.update()
         self.world.draw()
         self.base.reset()
 
-        for tank in self.tanks_group:
-            tank.reset()
-            tank.update()
             
 
         current_health = self.main_character.health
@@ -59,8 +62,21 @@ class GameScene(Scene):
             self.main_character.bullet.reset()
             self.main_character.bullet.update()
 
-    def on_lose_game(self):
-        print("Game Over. You lost!")
+        # Перевірка, чи всі танки мертві
+        all_tanks_dead = all(not tank.alive for tank in tanks_group)
 
-#об'єкт сцени
+        if all_tanks_dead:
+            # Тут вводьте код для обробки перемоги
+            WINDOW.fill(BLACK_COLOR)
+            WINDOW.blit(win, (200,200))
+            play = False
+            finish = True
+
+    def on_lose_game(self):
+        WINDOW.fill(BLACK_COLOR)
+        WINDOW.blit(lose, (200,200))
+        play = False
+        finish = True
+        
+        
 game = GameScene()
