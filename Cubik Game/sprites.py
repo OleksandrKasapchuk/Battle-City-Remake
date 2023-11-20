@@ -6,6 +6,7 @@ from logger import *
 from scenes import *
 from random import choice,random
 
+tanks_group = sprite.Group()
 
 #клас спрайтів
 class GameSprite(sprite.Sprite):
@@ -45,7 +46,7 @@ class Player(sprite.Sprite):
         self.counter = 0
         self.direction = 0
         self.bullets = sprite.Group()
-        self.last_shot_time = -3000  
+        self.last_shot_time = -2000  
         self.shoot_cooldown = 3000
         self.shooting = False
         self.max_health = max_health
@@ -129,70 +130,104 @@ class Player(sprite.Sprite):
         bullet = Bullet("assets/images/bullet.png", 10, self.rect.centerx, self.rect.top, 45, 45, self.direction, False)
         self.bullets.add(bullet)
 
-player = Player(58, 58, 400, 450, 5, max_health)
+player = Player(58, 58, 400, 575, 5, max_health)
 
-#клас ворога
 class Tank(GameSprite):
     def __init__(self, player_image, player_speed, player_x, player_y, size_x, size_y, direction, health):
         super().__init__(player_image, player_speed, player_x, player_y, size_x, size_y, direction)
+
         self.original_image = self.image
         self.wall_collision = False
-        self.health = health  # Додаємо параметр здоров'я
-    #оновлення ворогів
+        self.health = health
+        self.last_shot_time = -3000
+        tanks_group.add(self)
+        self.bullets = sprite.Group()
+        self.alive = True
+
     def update(self):
         dx, dy = 0, 0
+        walk_cooldown = 1
 
-        #перевірка на колізію з блоками
         for tile in world.tile_list:
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.rect.width, self.rect.height) and tile not in bushes:
                 self.wall_collision = True
                 dx = 0
-            #додаткова перевірка для цегли
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.rect.width, self.rect.height) and tile not in bushes:
                 self.wall_collision = True
                 dy = 0
 
+        if self.rect.x + dx < 0:
+            dx = -self.rect.x
+            self.direction = self.rotate_direction(self.direction,180)
+
+        elif self.rect.x + dx + self.rect.width > WIN_WIDTH:
+            dx = WIN_WIDTH - self.rect.x - self.rect.width
+            self.direction = self.rotate_direction(self.direction,180)
+
+        if self.rect.y + dy < 0:
+            dy = -self.rect.y
+            self.direction = self.rotate_direction(self.direction,180)
+            
+        elif self.rect.y + dy + self.rect.height > WIN_HEIGHT:
+            dy = WIN_HEIGHT - self.rect.y - self.rect.height
+            self.direction = self.rotate_direction(self.direction,180)
 
 
 
-        #при колізії змінює напрямок
+
+
         if self.wall_collision:
             random_number = random()
             if random_number < 0.4:  # 40% шанс
                 player_directions = [player.direction, -player.direction]
                 possible_directions = list(set([1, -1, 2, -2, *player_directions]))
-                possible_directions.remove(-self.direction)  #видаляє протилежний напрямок
+                possible_directions.remove(-self.direction)  # видаляє протилежний напрямок
                 self.direction = choice(possible_directions)
             else:
                 rotate_probability = random()
                 if rotate_probability < 0.5:  # 50% шанс
                     rotate_amount = choice([90, 180])  # повертає на 90 або 180 градусів
                     self.direction = self.rotate_direction(self.direction, rotate_amount)
+                else:
+                    if self.direction == 1:
+                        self.direction = -2
+                    elif self.direction == -1:
+                        self.direction = 2
+                    elif self.direction == 2:
+                        self.direction = 1
+                    elif self.direction == -2:
+                        self.direction = -1
 
             self.wall_collision = False
 
-            
             self.rect.x = round(self.rect.x / tile_size) * tile_size
             self.rect.y = round(self.rect.y / tile_size) * tile_size
 
-        # 1 право, -1 ліво,2 вверх,-2 вниз
         if self.direction == 1:
             dx += self.speed
-            self.image = transform.rotate(self.original_image, -90)#повертає на 90 градусів для напрямку вправо 
+            self.image = transform.rotate(self.original_image, -90)  # 0 градусів для напрямку вправо
         elif self.direction == -1:
             dx -= self.speed
-            self.image = transform.rotate(self.original_image, 90) #повертає на -90 градусів для напрямку вліво
+            self.image = transform.rotate(self.original_image, 90)  # 180 градусів для напрямку вліво
         elif self.direction == 2:
             dy -= self.speed
-            self.image = transform.rotate(self.original_image, 0)  #повертає на  180 градусів для напрямку вгору
+            self.image = transform.rotate(self.original_image, 0)  # 90 градусів для напрямку вгору
         elif self.direction == -2:
             dy += self.speed
-            self.image = transform.rotate(self.original_image, 180)#повертає на 180 градусів для напрямку вниз
+            self.image = transform.rotate(self.original_image, 180)  # -90 градусів для напрямку вниз
 
         self.rect.x += dx
         self.rect.y += dy
 
-        self.wall_collision = False  #перезавантаження змінної для запобігання спонтанних змін руху
+        current_time = time.get_ticks()
+        if current_time - self.last_shot_time >= 3500:
+            self.last_shot_time = current_time
+            self.fire()
+
+    def reset(self): 
+        WINDOW.blit(self.image, self.rect.topleft)
+        self.bullets.update()
+        self.bullets.draw(WINDOW)
 
     @staticmethod
     def rotate_direction(direction, angle):
@@ -204,24 +239,49 @@ class Tank(GameSprite):
             return 1 if angle == 90 else -1
         elif direction == -2:
             return -1 if angle == 90 else 1
-        return direction  #повертає той самий напрямок якщо не 90 або 180 градусів
-
+        return direction
 
     def hit(self):
         self.health -= 1
         if self.health <= 0:
+            self.alive = False
             self.kill()
+
+            
 
 #клас швидкого танка
 class FastTank(Tank):
     def __init__(self, player_x, player_y):
-        super().__init__("tanks_textures/speed1.png", 3, player_x, player_y, 50, 50, 1, 1)
+        super().__init__("tanks_textures/speed1.png", 5, player_x, player_y, 50, 50, 1, 1)
+
+    def fire(self):
+        #створення кулі(постріл)
+        bullet = Bullet("assets/images/bullet.png", 10, self.rect.centerx, self.rect.top, 45, 45, self.direction, False)
+        fire_sound.set_volume(0.04)
+        fire_sound.play()
+        self.bullets.add(bullet)
+
 #клас броньованого танка
 class ArmoredTank(Tank):
     def __init__(self, player_x, player_y):
         super().__init__("tanks_textures/fat1.png", 2, player_x, player_y, 50, 50, 1, 3)
 
+    def fire(self):
+        #створення кулі(постріл)
+        bullet = Bullet("assets/images/bullet.png", 10, self.rect.centerx, self.rect.top, 45, 45, self.direction, False)
+        fire_sound.set_volume(0.04)
+        fire_sound.play()
+        self.bullets.add(bullet)
 
+fast_tank1 = FastTank(21, 640)
+fast_tank2 = FastTank(192, 119)
+fast_tank3 = FastTank(518, 322)
+
+armored_tank1 = ArmoredTank(633, 640)
+armored_tank2 = ArmoredTank(640, 64)
+armored_tank2 = ArmoredTank(510, 128)
+
+baza = GameSprite("assets/images/baza.png", 0, 385, 770, 64, 64, 0)
 
 #клас кулі
 class Bullet(GameSprite):
@@ -231,7 +291,9 @@ class Bullet(GameSprite):
         self.explosion_images = [transform.scale(image.load("assets/images/exp1.png"), (50, 50)),
                                  transform.scale(image.load("assets/images/exp2.png"), (50, 50)),
                                  transform.scale(image.load("assets/images/exp3.png"), (50, 50))]
-        
+        self.side_offset = 0
+        self.up_down_offset = 0
+        self.rotation = 0
         self.explosion_index = 0
         self.explosion_counter = 0
         self.explosion_duration = 10
@@ -244,7 +306,6 @@ class Bullet(GameSprite):
             self.image = transform.flip(self.image, True, False) 
         elif direction in [2, -2]: 
             self.rotation = 0 if direction == 2 else 180 
- 
         self.image = transform.rotate(self.image, self.rotation) 
  
         if direction == 1: 
@@ -272,27 +333,46 @@ class Bullet(GameSprite):
         self.rect.y += self.up_down_offset
     
     def update(self):
-        if not self.exploded:
-            dx, dy = 0, 0
-            #пересування
-            if self.direction == 1:
-                dx += self.speed
-            elif self.direction == -1:
-                dx -= self.speed
-            elif self.direction == 2:
-                dy -= self.speed
-            elif self.direction == -2:
-                dy += self.speed
-            #колізія
-            for tile in world.tile_list:
-                if tile[1].colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y) and tile in touchabels:
-                    self.explode()
-                    self.show_explosion()
-                    if tile in bricks:
+        dx, dy = 0, 0
+        #пересування
+        if self.direction == 1:
+            dx += self.speed
+        elif self.direction == -1:
+            dx -= self.speed
+        elif self.direction == 2:
+            dy -= self.speed
+        elif self.direction == -2:
+            dy += self.speed
+        if self.exploded:
+            self.explode()
+            self.show_explosion()
+
+
+        #колізія
+        for tile in world.tile_list:
+            if tile[1].colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y) and tile in touchabels:
+                self.exploded = True
+                if tile in bricks:
+                    tile[2] -= 1
+                    tile[0] = brick_b_img
+                    if tile[2] < 0:
                         world.tile_list.remove(tile)
-            #рух
-            self.rect.x += dx
-            self.rect.y += dy
+    
+        for tank in tanks_group:
+            if tank.rect.colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y) and self in player.bullets:
+                self.exploded = True
+                tank.hit()
+
+            if player.rect.colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y) and self in tank.bullets:
+                self.exploded = True
+                player.health +- 1
+
+        if baza.rect.colliderect(self.rect.x, self.rect.y, self.size_x, self.size_y):
+            player.health = 0
+        #рух
+        self.rect.x += dx
+        self.rect.y += dy
+
     #вибух кулі    
     def explode(self):
         self.kill()
@@ -311,3 +391,33 @@ class Bullet(GameSprite):
             if self.explosion_index >= len(self.explosion_images):
                 self.exploded = False
                 self.explosion_index = 0
+
+
+class Button():
+    def __init__(self, btn_image, x, y, size_x, size_y):
+        self.image = transform.scale(btn_image,(size_x,size_y))
+        self.rect = self.image.get_rect()
+        self.size_x, self.size_y = size_x, size_y 
+        self.rect.x = x
+        self.rect.y = y
+        self.index = 0
+        self.wait = 5
+        self.clicked = False
+        self.action = False
+    def draw(self):
+        WINDOW.blit(self.image, (self.rect.x, self.rect.y))
+
+        #get mouse position
+        pos = mouse.get_pos()
+
+        #check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.action = True
+                self.clicked = True
+                
+        if mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+btn_play = Button(play_button, 300, 500, 200, 100)
+btn_exit = Button(exit_button, 300, 650, 200, 100)
